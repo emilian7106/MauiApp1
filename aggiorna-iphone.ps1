@@ -21,6 +21,13 @@ $runId = ($url -split "/")[-1]
 Write-Host "Compilazione: $url"
 Write-Host "Aspetto che finisca (10-20 minuti)..."
 
+# appena avviata, l'esecuzione puo' non essere ancora visibile alle API di GitHub (404)
+for ($i = 0; $i -lt 20; $i++) {
+    gh run view $runId --json status *> $null
+    if ($LASTEXITCODE -eq 0) { break }
+    Start-Sleep -Seconds 3
+}
+
 gh run watch $runId --exit-status --interval 30 | Out-Null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Compilazione FALLITA. Apri il link sopra e incolla il log a Claude." -ForegroundColor Red
