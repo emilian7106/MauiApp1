@@ -2,23 +2,48 @@
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
+
 
         public MainPage()
         {
             InitializeComponent();
+            // se sono arrivato qua l'xaml è pronto
+            // come gestisco l'evento click del button?
+            this.ButtonAddizione.Clicked += ButtonAddizione_Clicked;
+
         }
 
-        private void OnCounterClicked(object? sender, EventArgs e)
+        private void ButtonAddizione_Clicked(object? sender, EventArgs e)
         {
-            count++;
+            try
+            {
+                // se arrivo qua dentro utente ha fatto click sul botton
+                //DisplayAlertAsync("titolo", "messaggio", "OK");
+                // dobbiamo prelevare i dati dai due Entry
+                // fare i calcoli etc...
+                String PrimoNumeroString, SecondoNumeroString, Messaggio;
+                Double PrimoNumero, SecondoNumero, Addizione;
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
+                // prelevo i dati (String)
+                PrimoNumeroString = this.EntryPrimoNumero.Text;
+                SecondoNumeroString = this.EntrySecondoNumero.Text;
 
-            SemanticScreenReader.Announce(CounterBtn.Text);
+                // non posso fare i calcoli con le String, devo convertire
+                // in Double
+                PrimoNumero = Convert.ToDouble(PrimoNumeroString);
+                SecondoNumero = Convert.ToDouble(SecondoNumeroString);
+
+                Addizione = PrimoNumero + SecondoNumero;
+
+                // fase di output
+                this.EntryRisultato.Text = Convert.ToString(Addizione);
+            }
+            catch (Exception myException)
+            {
+                // ho beccato una eccezione (sacramento)
+                DisplayAlertAsync("Problema", "Eccezione: " + myException.Message, "OK");
+            }
+
         }
     }
 }
