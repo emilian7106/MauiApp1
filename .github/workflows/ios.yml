@@ -1,0 +1,27 @@
+name: iPhone IPA
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installa .NET 10.0.401
+        run: |
+          curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
+          bash dotnet-install.sh --version 10.0.401 --install-dir "$HOME/.dotnet"
+          echo "DOTNET_ROOT=$HOME/.dotnet" >> "$GITHUB_ENV"
+          echo "$HOME/.dotnet" >> "$GITHUB_PATH"
+      - name: Installa workload MAUI (coppia compatibile con Xcode 26.6)
+        run: dotnet workload install maui --version 10.0.401
+      - name: Seleziona Xcode 26.6
+        run: sudo xcode-select -s /Applications/Xcode_26.6.app
+      - name: Compila IPA non firmato
+        run: |
+          PROJ=$(grep -rl --include=*.csproj "net10.0-ios" . | head -n 1)
+          echo "Progetto trovato: $PROJ"
+          dotnet publish "$PROJ" -f net10.0-ios -c Release -r ios-arm64 -p:EnableCodeSigning=false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-ios
+          path: "**/publish/*.ipa"
